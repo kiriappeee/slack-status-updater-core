@@ -2,6 +2,7 @@ package ssucore
 
 import (
 	"testing"
+	"strings"
 )
 
 func TestSlackStatusCanBeInitializedCorrectly(t *testing.T) {
@@ -29,7 +30,10 @@ func TestSlackStatusCanBeReadCorrectlyFromString(t *testing.T) {
   emoji: ''
   statusText: In Focus mode
 `
-	var statusesToTest []Status = ConvertTextToStructArray(textToReadIn)
+	statusesToTest, err := ConvertTextToStructArray(textToReadIn)
+	if err != nil {
+		t.Fatalf("An error occured when converting text. Did not expect error. Error was %v", err)
+	}
 	if len(statusesToTest) != 4 {
 		t.Fatalf("Length of returned array was %d. Expected 4", len(statusesToTest))
 	} else {
@@ -43,6 +47,36 @@ func TestSlackStatusCanBeReadCorrectlyFromString(t *testing.T) {
 		if statusToTest.StatusText != "Having lunch" {
 			t.Fatalf("Error when checking status 0: Status text was %s. Expected Having lunch", statusToTest.StatusText)
 		}
+	}
+
+}
+
+func TestAnErrorIsThrownWhenAPoorlyFormattedYamlIsProvided(t *testing.T) {
+	textToReadIn :=`
+- statusName: lunch
+  emoji: chompy
+  statusText: Having lunch
+
+- statusName: resting
+  emoji 
+  statusText: Resting
+
+- statusName: awesome
+   emoji: awesome
+  statusText: ''
+ -
+`
+	statusesToTest, err := ConvertTextToStructArray(textToReadIn)
+	if err == nil {
+		t.Fatalf("Error was nil. Expected an error")
+	}
+
+	if ! strings.Contains(err.Error(), "could not find expected") {
+		t.Fatalf("Error message was not the expected one. Received: %s", err.Error())
+	}
+
+	if statusesToTest != nil{
+		t.Fatalf("Statuses to test was %v. Expected nil", statusesToTest)
 	}
 
 }
