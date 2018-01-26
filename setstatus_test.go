@@ -104,3 +104,99 @@ func TestAnErrorIsThrownWhenTheYamlDoesntMatchTheAppSpec(t *testing.T){
 		t.Fatalf("Statuses to test was %v. Expected nil", statusesToTest)
 	}
 }
+
+func TestAnErrorIsThrownIfCorrectValuesAreNotSuppliedForTheStruct(t *testing.T){
+	textToReadIn := `
+- statusName: lunch
+  emoji: ''
+  statusText: ''
+`
+	
+	_, err := ConvertTextToStructArray(textToReadIn)
+	if err == nil {
+		t.Fatalf("Error was nil. Expected an error")
+	} else {
+		if ! strings.Contains(err.Error(), "Both emoji and status text cannot be empty") {
+			t.Fatalf("Expected error regarding missing values. Received: %s", err.Error())
+		}
+	}
+
+	textToReadIn = `
+- statusName: ''
+  emoji: ''
+  statusText: ''
+`
+	_, err = ConvertTextToStructArray(textToReadIn)
+	if err == nil {
+		t.Fatalf("Error was nil. Expected an error")
+	} else {
+		if ! strings.Contains(err.Error(), "Status name (statusName) cannot be empty. ") {
+			t.Fatalf("Expected error regarding missing status name. Received: %s", err.Error())
+		}
+	}
+
+	textToReadIn = `
+- statusName: lunch
+  statusText: ''
+`
+	
+	_, err = ConvertTextToStructArray(textToReadIn)
+	if err == nil {
+		t.Fatalf("Error was nil. Expected an error")
+	} else {
+		if ! strings.Contains(err.Error(), "Both emoji and status text cannot be empty") {
+			t.Fatalf("Expected error regarding missing values. Received: %s", err.Error())
+		}
+	}
+
+	textToReadIn = `
+- statusName: lunch
+  emoji: ''
+`
+	
+	_, err = ConvertTextToStructArray(textToReadIn)
+	if err == nil {
+		t.Fatalf("Error was nil. Expected an error")
+	} else {
+		if ! strings.Contains(err.Error(), "Both emoji and status text cannot be empty") {
+			t.Fatalf("Expected error regarding missing values. Received: %s", err.Error())
+		}
+	}
+
+	textToReadIn = `
+- statusName: lunch'
+`
+	
+	_, err = ConvertTextToStructArray(textToReadIn)
+	if err == nil {
+		t.Fatalf("Error was nil. Expected an error")
+	} else {
+		if ! strings.Contains(err.Error(), "Both emoji and status text cannot be empty") {
+			t.Fatalf("Expected error regarding missing values. Received: %s", err.Error())
+		}
+	}
+}
+
+func TestAnErrorIsThrownWhenADuplicateValueExists(t *testing.T){
+	textToReadIn :=`
+- statusName: lunch
+  emoji: chompy
+  statusText: Having lunch
+
+- statusName: resting
+  emoji: bath
+  statusText: Resting
+
+- statusName: lunch
+  emoji: awesome
+  statusText: Having lunch
+`
+	_, err := ConvertTextToStructArray(textToReadIn)
+	if err == nil {
+		t.Fatalf("Error was nil. Expected an error")
+	} else {
+		if ! strings.Contains(err.Error(), "duplicate key") {
+			t.Fatalf("Expected duplicate key error message. Received: %s", err.Error())
+		}
+	}
+}
