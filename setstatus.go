@@ -1,8 +1,8 @@
 package ssucore
 
 import (
-	"log"
-
+	"fmt"
+	"strings"
 	"gopkg.in/yaml.v2"
 )
 
@@ -15,9 +15,13 @@ type Status struct {
 func ConvertTextToStructArray(textToConvert string) ([]Status, error) {
 
 	var statusesToReturn []Status
-	err := yaml.Unmarshal([]byte(textToConvert), &statusesToReturn)
+	err := yaml.UnmarshalStrict([]byte(textToConvert), &statusesToReturn)
 	if err != nil {
-		log.Printf("ssucore.ConvertTextToStructArray: couldn't convert it %s", err)
+		if strings.Contains(err.Error(), "could not find expected") {
+			fmt.Printf("Yaml was poorly formatted. Please check your config.\nError thrown was: %s\n", err)
+		} else if strings.Contains(err.Error(), "unmarshal errors") {
+			fmt.Printf("One or more fields in the yaml are incorrectly specified.\nError thrown was: %s\n", err)
+		}
 		return nil, err
 	}
 

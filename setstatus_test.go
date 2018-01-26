@@ -80,3 +80,27 @@ func TestAnErrorIsThrownWhenAPoorlyFormattedYamlIsProvided(t *testing.T) {
 	}
 
 }
+
+func TestAnErrorIsThrownWhenTheYamlDoesntMatchTheAppSpec(t *testing.T){
+	textToReadIn :=`
+- statusName: lunch
+  emoji: chompy
+  statusText: Having lunch
+
+- statusname: resting
+  emoji: sleep
+  statusText: Resting
+`
+
+	statusesToTest, err := ConvertTextToStructArray(textToReadIn)
+	if err == nil {
+		t.Fatalf("Error was nil. Expected an error")
+	} else {
+		if ! strings.Contains(err.Error(), "unmarshal errors") {
+			t.Fatalf("Expected unmarshal errors error message. Received: %s", err.Error())
+		}
+	}
+	if statusesToTest != nil{
+		t.Fatalf("Statuses to test was %v. Expected nil", statusesToTest)
+	}
+}
