@@ -3,7 +3,16 @@ package ssucore
 import (
 	"testing"
 	"strings"
+	"errors"
 )
+
+func updateStatusViaAPIMock(s *Status) (string, error){
+	if s.StatusName == "lunch" && s.Emoji == "chompy" && s.StatusText == "Having lunch"{
+		return "Status was successfully changed", nil
+	} else {
+		return "", errors.New("Could not update the status message")
+	}
+}
 
 func TestSlackStatusCanBeInitializedCorrectly(t *testing.T) {
 	var statusToTest Status = Status{StatusName: "lunch", Emoji: "chompy", StatusText: "eating lunch"}
@@ -198,5 +207,26 @@ func TestAnErrorIsThrownWhenADuplicateValueExists(t *testing.T){
 		if ! strings.Contains(err.Error(), "duplicate key") {
 			t.Fatalf("Expected duplicate key error message. Received: %s", err.Error())
 		}
+	}
+}
+
+func TestSetStatusMethodIsCalled(t *testing.T){
+	s := Status{"lunch", "chompy", "Having lunch"}
+	result, err := s.setMyStatus(updateStatusViaAPIMock)
+	if  err != nil {
+		t.Fatalf("Error was not nil. Received: %s", err.Error())
+	}
+	if result != "Status was successfully changed" {
+		t.Fatalf("Result message was not the expected value. Received: %s", result)
+	}
+
+	s = Status{"lunch", "chompy", "eating"}
+	result, err = s.setMyStatus(updateStatusViaAPIMock)
+	if  err == nil {
+		t.Fatalf("Error was nil. Expected an error")
+	}
+
+	if err.Error() != "Could not update the status message" {
+		t.Fatalf("Received error message was not as expected. Received: %s", err.Error())
 	}
 }

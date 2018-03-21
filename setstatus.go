@@ -41,3 +41,7 @@ func ConvertTextToStructArray(textToConvert string) ([]Status, error) {
 	}
 	return statusesToReturn, nil
 }
+
+func (s *Status) setMyStatus(fn UpdateStatus) (string, error) {
+	return fn(s)
+}
