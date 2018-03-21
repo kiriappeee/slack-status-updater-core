@@ -6,7 +6,7 @@ import (
 	"errors"
 )
 
-func updateStatusViaAPIMock(s *Status) (string, error){
+func updateStatusViaAPIMock(s *Status, apiToken string) (string, error){
 	if s.StatusName == "lunch" && s.Emoji == "chompy" && s.StatusText == "Having lunch"{
 		return "Status was successfully changed", nil
 	} else {
@@ -212,7 +212,7 @@ func TestAnErrorIsThrownWhenADuplicateValueExists(t *testing.T){
 
 func TestSetStatusMethodIsCalled(t *testing.T){
 	s := Status{"lunch", "chompy", "Having lunch"}
-	result, err := s.setMyStatus(updateStatusViaAPIMock)
+	result, err := s.setMyStatus(updateStatusViaAPIMock, "mytoken")
 	if  err != nil {
 		t.Fatalf("Error was not nil. Received: %s", err.Error())
 	}
@@ -221,7 +221,7 @@ func TestSetStatusMethodIsCalled(t *testing.T){
 	}
 
 	s = Status{"lunch", "chompy", "eating"}
-	result, err = s.setMyStatus(updateStatusViaAPIMock)
+	result, err = s.setMyStatus(updateStatusViaAPIMock, "mytoken")
 	if  err == nil {
 		t.Fatalf("Error was nil. Expected an error")
 	}
