@@ -212,7 +212,7 @@ func TestAnErrorIsThrownWhenADuplicateValueExists(t *testing.T){
 
 func TestSetStatusMethodIsCalled(t *testing.T){
 	s := Status{"lunch", "chompy", "Having lunch"}
-	result, err := s.setMyStatus(updateStatusViaAPIMock, "mytoken")
+	result, err := s.SetMyStatus(updateStatusViaAPIMock, "mytoken")
 	if  err != nil {
 		t.Fatalf("Error was not nil. Received: %s", err.Error())
 	}
@@ -221,7 +221,7 @@ func TestSetStatusMethodIsCalled(t *testing.T){
 	}
 
 	s = Status{"lunch", "chompy", "eating"}
-	result, err = s.setMyStatus(updateStatusViaAPIMock, "mytoken")
+	result, err = s.SetMyStatus(updateStatusViaAPIMock, "mytoken")
 	if  err == nil {
 		t.Fatalf("Error was nil. Expected an error")
 	}
