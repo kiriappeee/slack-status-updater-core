@@ -32,6 +32,10 @@ func (s statusCrudMockImplementer) AddNewStatus(status Status) error {
 	return nil
 }
 
+func (s statusCrudMockImplementer) DeleteStatusByName(name string) error {
+	return nil
+}
+
 func TestStatusCRUDWillReturnStatuses(t *testing.T) {
 	var sci StatusCRUDInterface
 	sci = statusCrudMockImplementer("testing")
@@ -90,6 +94,60 @@ func TestStatusCRUDRunsAddStatusCorrectly(t *testing.T) {
 	}
 
 	err = AddNewStatus(Status{"mynewstatus", "", ""}, sci)
+	expectedErrorMessage = "Invalid Status (status with both text and emoji empty) was provided"
+	if err == nil {
+		t.Fatalf("Did not receive an error while expecting one")
+	}
+	if err.Error() != expectedErrorMessage {
+		t.Fatalf("Received %s as error while expecting %s", err.Error(), expectedErrorMessage)
+	}
+}
+
+func TestStatusCRUDRunsDeleteCorrectly(t *testing.T) {
+	var sci StatusCRUDInterface
+	sci = statusCrudMockImplementer("testing")
+	err := DeleteStatusByName("test", sci)
+	if err != nil {
+		t.Fatalf("Received %s as an error while expecting nil", err.Error())
+	}
+
+	err = DeleteStatusByName("namethatdoesntexist", sci)
+	if err == nil {
+		t.Fatalf("Did not receive expected error")
+	}
+	if err.Error() != "Could not find status with that key" {
+		t.Fatalf("Received %s as error message. Expected %s", err.Error(), "Could not find status with that key")
+	}
+}
+
+func TestStatusCRUDRunsEditCorrectly(t *testing.T) {
+	var sci StatusCRUDInterface
+	sci = statusCrudMockImplementer("testing")
+	err := EditStatus("myoldstatus", Status{"mynewstatus", "emojiyey", "a hope new status"}, sci)
+	if err != nil {
+		t.Fatalf("Received %s as an error while expecting nil", err.Error())
+	}
+
+	err = EditStatus("myoldstatus", Status{"test", "emojiyey", "a hope new status"}, sci)
+	if err == nil {
+		t.Fatalf("Did not receive expected error")
+	}
+	expectedErrorMessage := "Status with that name already exists"
+	received := err.Error()
+	if expectedErrorMessage != received {
+		t.Fatalf("Received %s while expecting %s as error", received, expectedErrorMessage)
+	}
+
+	err = EditStatus("myoldstatus", Status{"", "anemoji", ""}, sci)
+	expectedErrorMessage = "Invalid Status (status without name) was supplied"
+	if err == nil {
+		t.Fatalf("Did not receive an error while expecting one")
+	}
+	if err.Error() != expectedErrorMessage {
+		t.Fatalf("Received %s as error while expecting %s", err.Error(), expectedErrorMessage)
+	}
+
+	err = EditStatus("myoldstatus", Status{"mynewstatus", "", ""}, sci)
 	expectedErrorMessage = "Invalid Status (status with both text and emoji empty) was provided"
 	if err == nil {
 		t.Fatalf("Did not receive an error while expecting one")
